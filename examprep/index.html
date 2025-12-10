@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Study Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .upload-section {
+            text-align: center;
+            padding: 40px;
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            background: #f8f9ff;
+        }
+
+        .upload-section input[type="file"] {
+            display: none;
+        }
+
+        .upload-btn {
+            background: #667eea;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .generate-btn {
+            background: #764ba2;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s;
+        }
+
+        .generate-btn:hover {
+            background: #653a8c;
+            transform: translateY(-2px);
+        }
+
+        .generate-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .buttons-section {
+            text-align: center;
+            margin: 30px 0;
+            display: none;
+        }
+
+        .output-section {
+            margin-top: 30px;
+            padding: 30px;
+            background: #f8f9ff;
+            border-radius: 15px;
+            display: none;
+        }
+
+        .quiz-container, .flashcard-container, .summary-container {
+            margin-top: 20px;
+        }
+
+        .question {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .question h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .option {
+            padding: 10px;
+            margin: 8px 0;
+            background: #f0f0f0;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .option:hover {
+            background: #e0e0e0;
+        }
+
+        .option.selected {
+            background: #667eea;
+            color: white;
+        }
+
+        .flashcard {
+            background: white;
+            padding: 30px;
+            margin: 15px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .flashcard:hover {
+            transform: scale(1.02);
+        }
+
+        .flashcard.flipped {
+            background: #764ba2;
+            color: white;
+        }
+
+        .summary-text {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            line-height: 1.8;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-size: 1.2em;
+            color: #667eea;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .file-name {
+            margin-top: 15px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .score {
+            text-align: center;
+            font-size: 1.5em;
+            color: #667eea;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 PDF Study Tool</h1>
+        
+        <div class="upload-section">
+            <input type="file" id="pdfInput" accept=".pdf">
+            <label for="pdfInput" class="upload-btn">Choose PDF File</label>
+            <div class="file-name" id="fileName"></div>
+        </div>
+
+        <div class="buttons-section" id="buttonsSection">
+            <button class="generate-btn" onclick="generateQuiz()">Generate Quiz</button>
+            <button class="generate-btn" onclick="generateFlashcards()">Generate Flashcards</button>
+            <button class="generate-btn" onclick="generateSummary()">Generate Summary</button>
+        </div>
+
+        <div class="output-section" id="outputSection"></div>
+    </div>
+
+    <script>
+        let uploadedFile = null;
+
+        document.getElementById('pdfInput').addEventListener('change', function(e) {
+            uploadedFile = e.target.files[0];
+            if (uploadedFile) {
+                document.getElementById('fileName').textContent = `Selected: ${uploadedFile.name}`;
+                document.getElementById('buttonsSection').style.display = 'block';
+            }
+        });
+
+        async function generateQuiz() {
+            if (!uploadedFile) return;
+            
+            const outputSection = document.getElementById('outputSection');
+            outputSection.style.display = 'block';
+            outputSection.innerHTML = '<div class="loading"><div class="spinner"></div>Generating quiz...</div>';
+
+            const formData = new FormData();
+            formData.append('pdf', uploadedFile);
+
+            try {
+                const response = await fetch('http://localhost:5000/generate-quiz', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                displayQuiz(data.quiz);
+            } catch (error) {
+                outputSection.innerHTML = '<p style="color: red;">Error generating quiz. Make sure the backend server is running.</p>';
+            }
+        }
+
+        async function generateFlashcards() {
+            if (!uploadedFile) return;
+            
+            const outputSection = document.getElementById('outputSection');
+            outputSection.style.display = 'block';
+            outputSection.innerHTML = '<div class="loading"><div class="spinner"></div>Generating flashcards...</div>';
+
+            const formData = new FormData();
+            formData.append('pdf', uploadedFile);
+
+            try {
+                const response = await fetch('http://localhost:5000/generate-flashcards', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                displayFlashcards(data.flashcards);
+            } catch (error) {
+                outputSection.innerHTML = '<p style="color: red;">Error generating flashcards. Make sure the backend server is running.</p>';
+            }
+        }
+
+        async function generateSummary() {
+            if (!uploadedFile) return;
+            
+            const outputSection = document.getElementById('outputSection');
+            outputSection.style.display = 'block';
+            outputSection.innerHTML = '<div class="loading"><div class="spinner"></div>Generating summary...</div>';
+
+            const formData = new FormData();
+            formData.append('pdf', uploadedFile);
+
+            try {
+                const response = await fetch('http://localhost:5000/generate-summary', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                displaySummary(data.summary);
+            } catch (error) {
+                outputSection.innerHTML = '<p style="color: red;">Error generating summary. Make sure the backend server is running.</p>';
+            }
+        }
+
+        function displayQuiz(quiz) {
+            let html = '<div class="quiz-container"><h2>Quiz Questions</h2>';
+            
+            quiz.forEach((q, index) => {
+                html += `
+                    <div class="question">
+                        <h3>Question ${index + 1}: ${q.question}</h3>
+                        ${q.options.map((opt, i) => `
+                            <div class="option" onclick="selectOption(this, ${index}, '${opt}', '${q.answer}')">
+                                ${String.fromCharCode(65 + i)}. ${opt}
+                            </div>
+                        `).join('')}
+                        <div id="result-${index}" style="margin-top: 10px; font-weight: bold;"></div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            document.getElementById('outputSection').innerHTML = html;
+        }
+
+        function selectOption(element, questionIndex, selected, correct) {
+            const questionDiv = element.parentElement;
+            const options = questionDiv.querySelectorAll('.option');
+            options.forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+            
+            const resultDiv = document.getElementById(`result-${questionIndex}`);
+            if (selected === correct) {
+                resultDiv.innerHTML = '<span style="color: green;">✓ Correct!</span>';
+            } else {
+                resultDiv.innerHTML = `<span style="color: red;">✗ Incorrect. Correct answer: ${correct}</span>`;
+            }
+        }
+
+        function displayFlashcards(flashcards) {
+            let html = '<div class="flashcard-container"><h2>Flashcards (Click to Flip)</h2>';
+            
+            flashcards.forEach((card, index) => {
+                html += `
+                    <div class="flashcard" onclick="flipCard(this)" data-front="${card.front}" data-back="${card.back}">
+                        <div><strong>Q:</strong> ${card.front}</div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            document.getElementById('outputSection').innerHTML = html;
+        }
+
+        function flipCard(element) {
+            const isFlipped = element.classList.contains('flipped');
+            
+            if (isFlipped) {
+                element.classList.remove('flipped');
+                element.innerHTML = `<div><strong>Q:</strong> ${element.dataset.front}</div>`;
+            } else {
+                element.classList.add('flipped');
+                element.innerHTML = `<div><strong>A:</strong> ${element.dataset.back}</div>`;
+            }
+        }
+
+        function displaySummary(summary) {
+            const html = `
+                <div class="summary-container">
+                    <h2>Summary Notes</h2>
+                    <div class="summary-text">${summary}</div>
+                </div>
+            `;
+            document.getElementById('outputSection').innerHTML = html;
+        }
+    </script>
+</body>
+</html>
