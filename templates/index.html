@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Study Material Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Home Page Styles */
+        .home-page {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            animation: fadeIn 1s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero-icon {
+            font-size: 8em;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .hero-title {
+            font-size: 4em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hero-subtitle {
+            font-size: 1.5em;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            max-width: 1000px;
+            margin: 40px 0;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s;
+            cursor: default;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .feature-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .feature-title {
+            font-size: 1.5em;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .feature-desc {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+
+        .cta-button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 20px 50px;
+            font-size: 1.3em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-top: 20px;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+
+        .badges {
+            display: flex;
+            gap: 20px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Main App Styles */
+        .app-container {
+            display: none;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-content {
+            flex: 1;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .back-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .back-button:hover {
+            background: white;
+            color: #667eea;
+            transform: translateX(-5px);
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            overflow-x: auto;
+        }
+
+        .tab {
+            flex: 1;
+            min-width: 150px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            background: #f8f9fa;
+            border: none;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .tab:hover {
+            background: #e9ecef;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #667eea;
+        }
+
+        .content {
+            padding: 40px;
+            min-height: 500px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeInUp 0.5s;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 60px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        }
+
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            transform: scale(1.02);
+        }
+
+        .upload-area.dragover {
+            background: #e7f0ff;
+            border-color: #667eea;
+            transform: scale(1.05);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-icon {
+            font-size: 5em;
+            color: #667eea;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+        }
+
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .quiz-question {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .quiz-question:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .quiz-question h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .quiz-question p {
+            font-size: 1.1em;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .option {
+            background: white;
+            padding: 15px 20px;
+            margin: 12px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s;
+            font-size: 1em;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .option.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateX(10px);
+        }
+
+        .option.correct {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+
+        .option.incorrect {
+            background: #dc3545;
+            color: white;
+            border-color: #dc3545;
+        }
+
+        .flashcard-container {
+            perspective: 1000px;
+            margin: 30px 0;
+        }
+
+        .flashcard {
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 20px;
+            padding: 50px;
+            min-height: 350px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .flashcard:hover {
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            backface-visibility: hidden;
+            position: absolute;
+            width: 100%;
+            padding: 50px;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+        }
+
+        .card-front h3 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 30px;
+        }
+
+        .card-front p {
+            font-size: 1.4em;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .card-back h3 {
+            color: #764ba2;
+            font-size: 1.8em;
+            margin-bottom: 30px;
+        }
+
+        .card-back p {
+            font-size: 1.2em;
+            color: #333;
+            line-height: 1.8;
+        }
+
+        .flip-hint {
+            margin-top: 30px;
+            color: #6c757d;
+            font-size: 0.9em;
+            font-style: italic;
+        }
+
+        .card-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .counter {
+            font-size: 1.3em;
+            color: #667eea;
+            font-weight: 700;
+        }
+
+        .nav-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .nav-btn:hover {
+            background: #764ba2;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .summary-box {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            padding: 40px;
+            border-radius: 15px;
+            line-height: 2;
+            font-size: 1.15em;
+            color: #333;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            border-left: 5px solid #667eea;
+        }
+
+        .results {
+            text-align: center;
+            padding: 50px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-radius: 20px;
+            margin-top: 30px;
+        }
+
+        .score {
+            font-size: 5em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .file-name {
+            margin-top: 20px;
+            color: #28a745;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5em;
+            }
+
+            .hero-subtitle {
+                font-size: 1.2em;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .flashcard {
+                padding: 30px;
+                min-height: 300px;
+            }
+
+            .quiz-question {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Home Page -->
+    <div class="home-page" id="homePage">
+        <div class="hero-icon">🎓</div>
+        <h1 class="hero-title">📚 STUDY-BUDDY</h1>
+        <p class="hero-subtitle">Transform any PDF into interactive study materials in seconds</p>
+        
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">🧠</div>
+                <div class="feature-title">Smart Quizzes</div>
+                <div class="feature-desc">Generate 12 intelligent quiz questions with instant grading</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎴</div>
+                <div class="feature-title">Flashcards</div>
+                <div class="feature-desc">Create 12 interactive flashcards for effective memorization</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📝</div>
+                <div class="feature-title">Smart Summary</div>
+                <div class="feature-desc">Get concise summaries highlighting key concepts</div>
+            </div>
+        </div>
+
+        <button class="cta-button" onclick="showApp()">
+            Get Started Now →
+        </button>
+
+        <div class="badges">
+            <span class="badge">✅ 100% Free</span>
+            <span class="badge">🔒 Privacy Focused</span>
+            <span class="badge">⚡ Lightning Fast</span>
+            <span class="badge">📡 Works Offline</span>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="app-container" id="appContainer">
+        <div class="container">
+            <div class="header">
+                <div class="header-content">
+                    <h1>📚 STUDY-BUDDY</h1>
+                    <p>Your Personal Study Material Generator</p>
+                </div>
+                <button class="back-button" onclick="showHome()">← Back to Home</button>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('upload')">📤 Upload</button>
+                <button class="tab" onclick="switchTab('summary')" id="summaryTab" disabled>📝 Summary</button>
+                <button class="tab" onclick="switchTab('quiz')" id="quizTab" disabled>🧠 Quiz</button>
+                <button class="tab" onclick="switchTab('flashcards')" id="flashcardsTab" disabled>🎴 Flashcards</button>
+            </div>
+
+            <div class="content">
+                <!-- Upload Tab -->
+                <div id="upload" class="tab-content active">
+                    <div class="upload-area" onclick="document.getElementById('pdfInput').click()">
+                        <div class="upload-icon">📄</div>
+                        <h2>Click to upload or drag and drop</h2>
+                        <p>PDF files only (Max 16MB)</p>
+                        <input type="file" id="pdfInput" class="file-input" accept=".pdf" onchange="handleFileSelect(event)">
+                        <div id="fileName" class="file-name"></div>
+                    </div>
+                    <div style="text-align: center;">
+                        <button class="btn" onclick="generateMaterials()" id="generateBtn" disabled>
+                            🚀 Generate Study Materials
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Summary Tab -->
+                <div id="summary" class="tab-content">
+                    <h2 style="color: #667eea; margin-bottom: 20px;">📝 Summary</h2>
+                    <div class="summary-box" id="summaryContent">
+                        Upload a PDF to generate a summary
+                    </div>
+                </div>
+
+                <!-- Quiz Tab -->
+                <div id="quiz" class="tab-content">
+                    <h2 style="color: #667eea; margin-bottom: 20px;">🧠 Quiz Challenge</h2>
+                    <div id="quizProgress" style="display: none;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="font-weight: 600;">Progress:</span>
+                            <span id="progressText">0 / 12 answered</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div id="quizContent" style="margin-top: 20px;">Upload a PDF to generate quiz questions</div>
+                    <div style="text-align: center; margin-top: 30px;">
+                        <button class="btn" onclick="submitQuiz()" id="submitQuizBtn" style="display: none;">
+                            ✅ Submit Quiz
+                        </button>
+                        <button class="btn" onclick="resetQuiz()" id="resetQuizBtn" style="display: none;">
+                            🔄 Try Again
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Flashcards Tab -->
+                <div id="flashcards" class="tab-content">
+                    <h2 style="color: #667eea; margin-bottom: 20px;">🎴 Flashcards</h2>
+                    <div id="flashcardContent">
+                        <p style="text-align: center; color: #6c757d; padding: 40px;">Upload a PDF to generate flashcards</p>
+                    </div>
+                    <div class="card-controls" id="cardControls" style="display: none;">
+                        <button class="nav-btn" onclick="prevCard()" id="prevCardBtn">← Previous</button>
+                        <span class="counter" id="cardCounter">1 / 12</span>
+                        <button class="nav-btn" onclick="nextCard()" id="nextCardBtn">Next →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let studyData = null;
+        let currentCard = 0;
+        let selectedAnswers = {};
+        let quizSubmitted = false;
+
+        function showApp() {
+            document.getElementById('homePage').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+        }
+
+        function showHome() {
+            document.getElementById('homePage').style.display = 'flex';
+            document.getElementById('appContainer').style.display = 'none';
+            
+            // Reset everything
+            studyData = null;
+            currentCard = 0;
+            selectedAnswers = {};
+            quizSubmitted = false;
+            
+            document.getElementById('pdfInput').value = '';
+            document.getElementById('fileName').textContent = '';
+            document.getElementById('generateBtn').disabled = true;
+            
+            document.querySelectorAll('.tab').forEach(t => {
+                if (t.textContent.includes('Upload')) {
+                    t.classList.add('active');
+                    t.disabled = false;
+                } else {
+                    t.classList.remove('active');
+                    t.disabled = true;
+                }
+            });
+            
+            switchTab('upload');
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            document.querySelector(`button[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                document.getElementById('fileName').textContent = `✅ Selected: ${file.name}`;
+                document.getElementById('generateBtn').disabled = false;
+            }
+        }
+
+        // Drag and drop
+        const uploadArea = document.querySelector('.upload-area');
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type === 'application/pdf') {
+                document.getElementById('pdfInput').files = e.dataTransfer.files;
+                handleFileSelect({ target: { files: [file] } });
+            }
+        });
+
+        async function generateMaterials() {
+            const fileInput = document.getElementById('pdfInput');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select a PDF file');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('pdf', file);
+
+            document.getElementById('upload').innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <h2>🔮 Analyzing your PDF...</h2>
+                    <p>Extracting key concepts and generating study materials</p>
+                    <p style="margin-top: 15px; color: #6c757d;">This takes about 5-10 seconds</p>
+                </div>
+            `;
+
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    studyData = data;
+                    displayStudyMaterials();
+                    enableTabs();
+                    switchTab('summary');
+                } else {
+                    throw new Error(data.error || 'Failed to generate materials');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+                location.reload();
+            }
+        }
+
+        function enableTabs() {
+            document.getElementById('summaryTab').disabled = false;
+            document.getElementById('quizTab').disabled = false;
+            document.getElementById('flashcardsTab').disabled = false;
+        }
+
+        function displayStudyMaterials() {
+            // Display Summary
+            document.getElementById('summaryContent').innerHTML = `<p>${studyData.summary}</p>`;
+
+            // Display Quiz
+            displayQuiz();
+
+            // Display Flashcards
+            displayFlashcard();
+        }
+
+        function displayQuiz() {
+            let quizHTML = '';
+            studyData.quizzes.forEach((quiz, index) => {
+                quizHTML += `
+                    <div class="quiz-question">
+                        <h3>Question ${index + 1}</h3>
+                        <p>${quiz.question}</p>
+                        <div class="options">
+                            ${quiz.options.map((option, optIndex) => `
+                                <div class="option" onclick="selectAnswer(${index}, '${option.charAt(0)}')" 
+                                     id="q${index}opt${optIndex}">
+                                    ${option}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('quizContent').innerHTML = quizHTML;
+            document.getElementById('submitQuizBtn').style.display = 'inline-block';
+            document.getElementById('quizProgress').style.display = 'block';
+            updateProgress();
+        }
+
+        function selectAnswer(questionIndex, answer) {
+            if (quizSubmitted) return;
+            
+            selectedAnswers[questionIndex] = answer;
+            
+            // Remove previous selection
+            document.querySelectorAll(`#quizContent .quiz-question:nth-child(${questionIndex + 1}) .option`)
+                .forEach(opt => opt.classList.remove('selected'));
+            
+            // Add new selection
+            const selectedOpt = Array.from(document.querySelectorAll(`#quizContent .quiz-question:nth-child(${questionIndex + 1}) .option`))
+                .find(opt => opt.textContent.trim().startsWith(answer));
+            if (selectedOpt) selectedOpt.classList.add('selected');
+            
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const answered = Object.keys(selectedAnswers).length;
+            const total = studyData.quizzes.length;
+            const percentage = (answered / total) * 100;
+            
+            document.getElementById('progressText').textContent = `${answered} / ${total} answered`;
+            document.getElementById('progressFill').style.width = percentage + '%';
+        }
+
+        function submitQuiz() {
+            if (Object.keys(selectedAnswers).length < studyData.quizzes.length) {
+                alert('⚠️ Please answer all questions before submitting');
+                return;
+            }
+
+            quizSubmitted = true;
+            let correct = 0;
+
+            studyData.quizzes.forEach((quiz, index) => {
+                const options = document.querySelectorAll(`#quizContent .quiz-question:nth-child(${index + 1}) .option`);
+                options.forEach(opt => {
+                    const letter = opt.textContent.trim().charAt(0);
+                    if (letter === quiz.correct) {
+                        opt.classList.add('correct');
+                    } else if (letter === selectedAnswers[index]) {
+                        opt.classList.add('incorrect');
+                    }
+                    opt.style.cursor = 'default';
+                });
+
+                if (selectedAnswers[index] === quiz.correct) correct++;
+            });
+
+            const percentage = Math.round((correct / studyData.quizzes.length) * 100);
+            
+            let emoji = '😢';
+            let message = 'Keep studying!';
+            if (percentage >= 90) {
+                emoji = '🎉';
+                message = 'Outstanding! You\'re a master!';
+            } else if (percentage >= 70) {
+                emoji = '😊';
+                message = 'Great job! You\'re doing well!';
+            } else if (percentage >= 50) {
+                emoji = '👍';
+                message = 'Good effort! Keep practicing!';
+            }
+            
+            document.getElementById('quizContent').insertAdjacentHTML('beforeend', `
+                <div class="results">
+                    <div style="font-size: 4em; margin-bottom: 20px;">${emoji}</div>
+                    <h2 style="color: #667eea;">Quiz Results</h2>
+                    <div class="score">${percentage}%</div>
+                    <p style="font-size: 1.3em; margin-bottom: 10px;">${message}</p>
+                    <p style="font-size: 1.1em; color: #6c757d;">You got ${correct} out of ${studyData.quizzes.length} correct!</p>
+                </div>
+            `);
+
+            document.getElementById('submitQuizBtn').style.display = 'none';
+            document.getElementById('resetQuizBtn').style.display = 'inline-block';
+            document.getElementById('quizProgress').style.display = 'none';
+        }
+
+        function resetQuiz() {
+            selectedAnswers = {};
+            quizSubmitted = false;
+            displayQuiz();
+            document.getElementById('resetQuizBtn').style.display = 'none';
+        }
+
+        function displayFlashcard() {
+            const card = studyData.flashcards[currentCard];
+            document.getElementById('flashcardContent').innerHTML = `
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="flipCard()" id="flashcard">
+                        <div class="card-front">
+                            <h3>Question</h3>
+                            <p>${card.front}</p>
+                            <p class="flip-hint">💡 Click to reveal answer</p>
+                        </div>
+                        <div class="card-back">
+                            <h3>Answer</h3>
+                            <p>${card.back}</p>
+                            <p class="flip-hint">💡 Click to flip back</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('cardControls').style.display = 'flex';
+            document.getElementById('cardCounter').textContent = `${currentCard + 1} / ${studyData.flashcards.length}`;
+            
+            document.getElementById('prevCardBtn').disabled = currentCard === 0;
+            document.getElementById('nextCardBtn').disabled = currentCard === studyData.flashcards.length - 1;
+        }
+
+        function flipCard() {
+            document.getElementById('flashcard').classList.toggle('flipped');
+        }
+
+        function nextCard() {
+            if (currentCard < studyData.flashcards.length - 1) {
+                currentCard++;
+                displayFlashcard();
+            }
+        }
+
+        function prevCard() {
+            if (currentCard > 0) {
+                currentCard--;
+                displayFlashcard();
+            }
+        }
+    </script>
+</body>
+</html>
